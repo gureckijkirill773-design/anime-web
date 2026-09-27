@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anime Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <div>
+    <input id="shikimoriId" placeholder="Shikimori ID">
+    <input id="translationId" placeholder="Translation ID">
+    <input id="episode" placeholder="Episode">
+    <button onclick="loadVideo()">Смотреть</button>
+  </div>
+  <video id="player" controls style="width:100%; max-width:1280px;"></video>
+
+  <script>
+    let hls = null;
+
+    async function loadVideo() {
+      const shikimoriId = document.getElementById('shikimoriId').value;
+      const translationId = document.getElementById('translationId').value;
+      const episode = document.getElementById('episode').value;
+
+      const url = 'https://anime-app-v2.onrender.com/api/episode/kodik'
+        + '?shikimoriId=' + encodeURIComponent(shikimoriId)
+        + '&translationId=' + encodeURIComponent(translationId)
+        + '&episode=' + encodeURIComponent(episode);
+
+      console.log('Запрос:', url);
+
+      const response = await fetch(url);
+      console.log('Статус:', response.status);
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Ошибка сервера:', text);
+        alert('Ошибка ' + response.status + ': ' + text);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Ответ:', data);
+
+      const video = document.getElementById('player');
+      const videoUrl = data.url.startsWith('//') ? 'https:' + data.url : data.url;
+
+      if (hls) hls.destroy();
+
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(videoUrl);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrl;
+      }
+    }
+  </script>
+</body>
+</html>
