@@ -43,7 +43,6 @@
   .title-genres { color: #c4a4ff; font-size: 13px; margin: 12px 0; }
   .title-desc { color: #b8b8b8; line-height: 1.6; font-size: 15px; margin-top: 16px; }
 
-  /* Плеер */
   #playerWrap { position: relative; width: 100%; aspect-ratio: 16 / 9; margin-bottom: 24px; background: #000; border-radius: 8px; overflow: hidden; }
   #player { width: 100%; height: 100%; display: block; background: #000; object-fit: contain; }
   #playerUI { position: absolute; inset: 0; user-select: none; }
@@ -84,7 +83,7 @@
   .ctrl-volume { display: flex; align-items: center; gap: 4px; }
   .ctrl-volume input { width: 70px; accent-color: #e63946; }
 
-  .history-card { display: flex; gap: 12px; background: #1a1a1c; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; align-items: center; }
+  .history-card { display: flex; gap: 12px; background: #1a1a1c; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; align-items: center; position: relative; }
   .history-card:hover { background: #26262a; }
   .history-poster { width: 60px; height: 90px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #26262a; }
   .history-poster-ph { width: 60px; height: 90px; border-radius: 4px; flex-shrink: 0; background: linear-gradient(135deg, #1a1a1c, #2a2a2c); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #444; }
@@ -92,6 +91,8 @@
   .history-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .history-sub { color: #9a9a9a; font-size: 13px; }
   .history-badge { background: #2a7fff; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .history-remove { background: transparent; border: 0; color: #666; cursor: pointer; padding: 6px 10px; border-radius: 4px; font-size: 18px; line-height: 1; }
+  .history-remove:hover { background: #3a1a1a; color: #ff9999; }
 
   .status { padding: 12px; background: #26262a; border-radius: 6px; margin: 16px 0; color: #9a9a9a; font-size: 14px; }
   .error { background: #3a1a1a; color: #ff9999; border-left: 3px solid #e63946; }
@@ -385,18 +386,42 @@ async function renderHistory() {
     const data = await r.json();
     const list = document.getElementById('historyList');
     if (!data.length) { list.innerHTML = '<div class="status">Пока ничего не смотрел</div>'; return; }
-    list.innerHTML = data.map(item => `
+    list.innerHTML = data.map(item => {
+      const parts = ['Серия ' + item.episode, fmtTime(item.seconds)];
+      if (item.translation_name) parts.push(item.translation_name);
+      const sub = parts.join(' · ');
+      return `
       <div class="history-card" onclick="openTitleFromHistory('${item.shikimori_id}', ${item.episode}, ${item.translation_id || 0}, ${item.seconds || 0})">
         ${posterHtml(item.poster_url, item.title, 'history-poster')}
         <div class="history-info">
           <div class="history-title">${item.title || ''}</div>
-          <div class="history-sub">Серия ${item.episode} · ${fmtTime(item.seconds)}</div>
+          <div class="history-sub">${sub}</div>
         </div>
         <div class="history-badge">⏵ Продолжить</div>
+        <button class="history-remove" title="Удалить из истории" onclick="removeFromHistory(event, '${item.shikimori_id}')">✕</button>
       </div>
-    `).join('');
+    `;
+    }).join('');
   } catch (e) {
     document.getElementById('historyList').innerHTML = '<div class="status error">Ошибка: ' + e.message + '</div>';
+  }
+}
+
+async function removeFromHistory(e, shikimoriId) {
+  e.stopPropagation();
+  if (!confirm('Удалить этот тайтл из истории?')) return;
+  try {
+    const r = await fetch(API + '/api/progress/' + shikimoriId, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    if (r.ok) {
+      renderHistory();
+    } else {
+      alert('Не удалось удалить: HTTP ' + r.status);
+    }
+  } catch (err) {
+    alert('Ошибка: ' + err.message);
   }
 }
 
@@ -423,7 +448,6 @@ async function openTitle(id, opts) {
     currentTitle = await r.json();
     renderTitle();
 
-    // Определяем: явно передан эпизод или нет
     const explicitEp = opts.ep != null && opts.ep !== '' && opts.ep !== 0;
     if (explicitEp) {
       playEpisode(opts.ep, opts.tr, opts.t || 0);
@@ -431,26 +455,19 @@ async function openTitle(id, opts) {
       return;
     }
 
-    // Не передан — смотрим, есть ли история
     if (!token) {
-      // Не залогинен — автостарт серии 1 с первой озвучкой
       autoStartFirst();
       return;
     }
 
-    // Проверяем историю
     try {
       const rr = await fetch(API + '/api/progress/' + id, { headers: authHeaders() });
       if (rr.ok) {
         const last = await rr.json();
-        if (last && last.episode) {
-          // Есть история — показываем кнопку «Продолжить», автозапуск не делаем
-          return;
-        }
+        if (last && last.episode) return;
       }
     } catch (e) {}
 
-    // Истории нет — автостарт
     autoStartFirst();
   } catch (e) {
     content.innerHTML = '<div class="status error">Не удалось загрузить: ' + e.message + '</div>';
@@ -460,7 +477,6 @@ async function openTitle(id, opts) {
 function autoStartFirst() {
   if (_autoStarted) return;
   _autoStarted = true;
-  // Первая озвучка по алфавиту + серия 1
   if (!currentTitle) return;
   const sources = currentTitle.sources?.kodik || [];
   if (!sources.length) return;
@@ -797,6 +813,11 @@ function resolveQuality() {
   return (currentQuality && currentQuality !== 'auto') ? currentQuality : defaultQuality();
 }
 
+function currentTranslationName() {
+  const cur = _translationsList.find(s => String(s.translationId) === String(currentTranslationId));
+  return cur ? cur.translation : null;
+}
+
 async function playEpisode(ep, trId, startSeconds) {
   if (!trId) trId = currentTranslationId || (_translationsList[0] && _translationsList[0].translationId);
   currentEpisode = ep;
@@ -865,7 +886,8 @@ async function saveProgress() {
         originalTitle: currentTitle.originalTitle,
         posterUrl: currentTitle.posterUrl,
         translationId: Number(currentTranslationId),
-        translationSource: 'kodik'
+        translationSource: 'kodik',
+        translationName: currentTranslationName()
       })
     });
   } catch(e) {}
@@ -887,7 +909,6 @@ async function reloadProgress() {
   } catch(e) {}
 }
 
-// START
 updateUserUI();
 setTimeout(clearSearchInput, 100);
 setTimeout(clearSearchInput, 500);
