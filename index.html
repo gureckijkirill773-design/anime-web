@@ -9,7 +9,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0f0f10; color: #e5e5e5; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
 
-  /* Верхняя панель */
   #topbar { display: flex; gap: 8px; padding: 10px 16px; background: #1a1a1c; border-bottom: 1px solid #2a2a2c; align-items: center; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
   #topbar input { background: #26262a; border: 1px solid #333; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 14px; flex: 1; min-width: 120px; }
   #topbar button { background: #e63946; color: #fff; border: 0; padding: 9px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
@@ -17,16 +16,13 @@
   #topbar button:hover { filter: brightness(1.15); }
   #userInfo { color: #9a9a9a; font-size: 14px; }
 
-  /* Табы */
   #tabs { display: flex; gap: 0; background: #1a1a1c; padding: 0 16px; border-bottom: 1px solid #2a2a2c; overflow-x: auto; }
   .tab { padding: 12px 20px; cursor: pointer; color: #9a9a9a; font-size: 15px; font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; }
   .tab:hover { color: #fff; }
   .tab.active { color: #fff; border-bottom-color: #e63946; }
 
-  /* Контейнер */
   #app { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
 
-  /* Сетка постеров */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
   .card { cursor: pointer; transition: transform 0.15s; }
   .card:hover { transform: translateY(-4px); }
@@ -34,10 +30,8 @@
   .card-title { margin-top: 8px; font-size: 14px; line-height: 1.3; font-weight: 500; }
   .card-meta { color: #7a7a7a; font-size: 12px; margin-top: 2px; }
 
-  /* Блок */
   .section-title { font-size: 20px; font-weight: 700; margin: 24px 0 16px; }
 
-  /* Страница тайтла */
   .title-layout { display: grid; grid-template-columns: 260px 1fr; gap: 32px; margin-bottom: 32px; }
   .title-poster { width: 100%; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
   .title-name { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
@@ -46,39 +40,33 @@
   .title-genres { color: #c4a4ff; font-size: 13px; margin: 12px 0; }
   .title-desc { color: #b8b8b8; line-height: 1.6; font-size: 15px; margin-top: 16px; }
 
-  /* Контролы */
   .controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0; align-items: center; }
   .controls select { background: #26262a; border: 1px solid #333; color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 14px; min-width: 160px; }
   .controls button { background: #e63946; color: #fff; border: 0; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; }
   .controls button:hover { filter: brightness(1.15); }
   .resume-btn { background: #2a7fff !important; }
 
-  /* Плеер */
   #playerWrap { position: relative; width: 100%; margin-bottom: 24px; }
   #player { width: 100%; max-height: 70vh; background: #000; border-radius: 8px; display: block; }
 
-  /* Эпизоды */
   .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 8px; }
   .ep-btn { background: #26262a; color: #e5e5e5; border: 1px solid #333; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; text-align: center; }
   .ep-btn:hover { background: #333; }
   .ep-btn.watched { background: #1a3a1a; border-color: #2a5a2a; color: #7ad07a; }
   .ep-btn.current { background: #e63946; border-color: #e63946; color: #fff; }
 
-  /* История */
   .history-card { display: flex; gap: 12px; background: #1a1a1c; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; align-items: center; }
   .history-card:hover { background: #26262a; }
-  .history-poster { width: 60px; height: 90px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+  .history-poster { width: 60px; height: 90px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #26262a; }
   .history-info { flex: 1; min-width: 0; }
   .history-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .history-sub { color: #9a9a9a; font-size: 13px; }
   .history-badge { background: #2a7fff; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
 
-  /* Статусы */
   .status { padding: 12px; background: #26262a; border-radius: 6px; margin: 16px 0; color: #9a9a9a; font-size: 14px; }
   .error { background: #3a1a1a; color: #ff9999; border-left: 3px solid #e63946; }
   .hidden { display: none !important; }
 
-  /* Модалка логина */
   #loginModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
   #loginBox { background: #1a1a1c; padding: 28px; border-radius: 12px; width: 100%; max-width: 380px; }
   #loginBox h2 { margin-bottom: 16px; font-size: 22px; }
@@ -93,7 +81,6 @@
   #loginBox button { width: 100%; background: #e63946; color: #fff; border: 0; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; }
   #loginBox .err { color: #ff9999; font-size: 13px; margin-top: 12px; min-height: 16px; text-align: center; }
 
-  /* АДАПТИВ */
   @media (max-width: 720px) {
     #app { padding: 16px 12px; }
     #topbar { padding: 8px 12px; gap: 6px; }
@@ -122,7 +109,7 @@
 <body>
 
 <div id="topbar">
-  <input id="inpSearch" placeholder="Поиск аниме...">
+  <input id="inpSearch" placeholder="Поиск аниме..." autocomplete="off">
   <button onclick="doSearch()">Найти</button>
   <span id="userInfo"></span>
   <button id="btnLogout" class="ghost hidden" onclick="logout()">Выйти</button>
@@ -185,6 +172,11 @@ let currentHls = null;
 let progressTimer = null;
 let currentSeconds = 0;
 
+function proxyPoster(url) {
+  if (!url) return '';
+  return API + '/api/poster?url=' + encodeURIComponent(url);
+}
+
 function fmtTime(sec) {
   if (!sec || sec < 0) return '00:00';
   const h = Math.floor(sec / 3600);
@@ -206,7 +198,6 @@ function defaultQuality() {
   return isMobile() ? '480' : '720';
 }
 
-// ==== UI ====
 function updateUserUI() {
   document.getElementById('userInfo').textContent = token && username ? '👤 ' + username : '';
   document.getElementById('btnLogout').classList.toggle('hidden', !token);
@@ -226,7 +217,6 @@ function togglePass(id, el) {
   el.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-// ==== AUTH ====
 async function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
@@ -275,25 +265,24 @@ function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('username');
   updateUserUI();
+  renderTab();
 }
 
-// ==== TABS ====
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  if (tab === 'home') location.hash = '';
-  else location.hash = tab;
+  if (tab === 'home') history.pushState({}, '', location.pathname);
+  else history.pushState({}, '', '#' + tab);
   renderTab();
 }
 
 function renderTab() {
-  const content = document.getElementById('content');
   if (currentTab === 'home') renderHome();
   else if (currentTab === 'history') renderHistory();
 }
 
-// ==== ГЛАВНАЯ ====
 async function renderHome() {
+  document.getElementById('inpSearch').value = '';
   const content = document.getElementById('content');
   content.innerHTML = '<div class="section-title">Онгоинги</div><div id="ongoingGrid" class="grid"><div class="status">Загрузка...</div></div>';
 
@@ -304,7 +293,7 @@ async function renderHome() {
     if (!data.length) { grid.innerHTML = '<div class="status">Ничего нет</div>'; return; }
     grid.innerHTML = data.map(item => `
       <div class="card" onclick="openTitle('${item.shikimoriId}')">
-        <img class="card-poster" src="${item.posterUrl || ''}" loading="lazy" alt="">
+        <img class="card-poster" src="${proxyPoster(item.posterUrl)}" loading="lazy" alt="">
         <div class="card-title">${item.title || ''}</div>
         <div class="card-meta">${item.episodes ? item.episodes + ' эп.' : ''} ${item.score ? '⭐ ' + item.score : ''}</div>
       </div>
@@ -329,7 +318,7 @@ async function doSearch() {
     if (!data.length) { grid.innerHTML = '<div class="status">Ничего не найдено</div>'; return; }
     grid.innerHTML = data.map(item => `
       <div class="card" onclick="openTitle('${item.shikimoriId}')">
-        <img class="card-poster" src="${item.posterUrl || ''}" loading="lazy" alt="">
+        <img class="card-poster" src="${proxyPoster(item.posterUrl)}" loading="lazy" alt="">
         <div class="card-title">${item.title || ''}</div>
         <div class="card-meta">${item.episodes ? item.episodes + ' эп.' : ''} ${item.score ? '⭐ ' + item.score : ''}</div>
       </div>
@@ -339,9 +328,9 @@ async function doSearch() {
   }
 }
 
-// ==== ИСТОРИЯ ====
 async function renderHistory() {
   const content = document.getElementById('content');
+  document.getElementById('inpSearch').value = '';
   if (!token) {
     content.innerHTML = '<div class="status">Войди в аккаунт чтобы увидеть историю</div>';
     return;
@@ -353,8 +342,8 @@ async function renderHistory() {
     const list = document.getElementById('historyList');
     if (!data.length) { list.innerHTML = '<div class="status">Пока ничего не смотрел</div>'; return; }
     list.innerHTML = data.map(item => `
-      <div class="history-card" onclick="openTitle('${item.shikimori_id}')">
-        <img class="history-poster" src="${item.poster_url || ''}" alt="">
+      <div class="history-card" onclick="openTitleFromHistory('${item.shikimori_id}', ${item.episode}, ${item.translation_id || 0}, ${item.seconds || 0})">
+        <img class="history-poster" src="${proxyPoster(item.poster_url)}" alt="">
         <div class="history-info">
           <div class="history-title">${item.title || ''}</div>
           <div class="history-sub">Серия ${item.episode} · ${fmtTime(item.seconds)}</div>
@@ -367,9 +356,18 @@ async function renderHistory() {
   }
 }
 
-// ==== СТРАНИЦА ТАЙТЛА ====
-async function openTitle(id) {
-  history.pushState({}, '', '?id=' + id);
+function openTitleFromHistory(id, ep, tr, sec) {
+  const params = new URLSearchParams();
+  params.set('id', id);
+  params.set('ep', ep);
+  if (tr) params.set('tr', tr);
+  if (sec) params.set('t', Math.floor(sec));
+  history.pushState({}, '', '?' + params.toString());
+  openTitle(id, { ep: ep, tr: tr, t: sec });
+}
+
+async function openTitle(id, opts) {
+  opts = opts || {};
   currentTab = 'title';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   const content = document.getElementById('content');
@@ -379,6 +377,9 @@ async function openTitle(id) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     currentTitle = await r.json();
     renderTitle();
+    if (opts.ep) {
+      playEpisode(opts.ep, opts.tr, opts.t || 0);
+    }
   } catch (e) {
     content.innerHTML = '<div class="status error">Не удалось загрузить: ' + e.message + '</div>';
   }
@@ -392,7 +393,7 @@ function renderTitle() {
 
   content.innerHTML = `
     <div class="title-layout">
-      <img class="title-poster" src="${t.posterUrl || ''}" alt="">
+      <img class="title-poster" src="${proxyPoster(t.posterUrl)}" alt="">
       <div>
         <div class="title-name">${t.title || ''}</div>
         <div class="title-orig">${t.originalTitle || ''}</div>
@@ -415,7 +416,7 @@ function renderTitle() {
       <button id="btnResume" class="resume-btn hidden"></button>
     </div>
 
-    <div id="playerWrap" class="hidden">
+    <div id="playerWrap">
       <video id="player" controls></video>
     </div>
 
@@ -427,7 +428,7 @@ function renderTitle() {
   document.getElementById('selTranslation').addEventListener('change', fillEpisodes);
   document.getElementById('selQuality').addEventListener('change', () => {
     if (currentEpisode && currentTranslationId) {
-      playEpisode(currentEpisode, currentTranslationId);
+      playEpisode(currentEpisode, currentTranslationId, currentSeconds);
     }
   });
   reloadProgress();
@@ -449,26 +450,30 @@ function resolveQuality() {
   return v === 'auto' ? defaultQuality() : v;
 }
 
-async function playSelected() {
+function playSelected() {
   const ep = document.getElementById('selEpisode').value;
   const tr = document.getElementById('selTranslation').value;
-  playEpisode(Number(ep), tr);
+  playEpisode(Number(ep), tr, 0);
 }
 
-async function playEpisode(ep, trId) {
+async function playEpisode(ep, trId, startSeconds) {
   if (!trId) trId = document.getElementById('selTranslation').value;
   currentEpisode = ep;
   currentTranslationId = trId;
   currentQuality = resolveQuality();
-  currentSeconds = 0;
+  currentSeconds = startSeconds || 0;
+
+  const selEp = document.getElementById('selEpisode');
+  if (selEp) selEp.value = ep;
+  const selTr = document.getElementById('selTranslation');
+  if (selTr) selTr.value = trId;
 
   document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('current'));
   const btn = document.querySelector('.ep-btn[data-ep="' + ep + '"]');
   if (btn) btn.classList.add('current');
 
-  const wrap = document.getElementById('playerWrap');
-  wrap.classList.remove('hidden');
   const video = document.getElementById('player');
+  if (!video) return;
 
   if (currentHls) { currentHls.destroy(); currentHls = null; }
 
@@ -486,9 +491,12 @@ async function playEpisode(ep, trId) {
       video.src = m3u8;
     }
 
-    const saved = loadLocalProgress(currentTitle.shikimoriId, ep);
-    if (saved && saved > 5) {
-      video.addEventListener('loadedmetadata', () => { video.currentTime = saved; }, { once: true });
+    const seekTo = startSeconds && startSeconds > 5
+      ? startSeconds
+      : loadLocalProgress(currentTitle.shikimoriId, ep);
+
+    if (seekTo && seekTo > 5) {
+      video.addEventListener('loadedmetadata', () => { video.currentTime = seekTo; }, { once: true });
     }
 
     video.play().catch(() => {});
@@ -503,7 +511,7 @@ async function playEpisode(ep, trId) {
 
     video.addEventListener('ended', () => {
       saveProgress();
-      if (currentEpisode < (currentTitle.episodes || 1)) playEpisode(currentEpisode + 1);
+      if (currentEpisode < (currentTitle.episodes || 1)) playEpisode(currentEpisode + 1, currentTranslationId, 0);
     });
 
   } catch (e) {
@@ -555,28 +563,28 @@ async function reloadProgress() {
       const last = await rr.json();
       if (last && last.episode) {
         const resume = document.getElementById('btnResume');
-        resume.textContent = '⏵ Продолжить с ' + fmtTime(last.seconds) + ' (серия ' + last.episode + ')';
-        resume.classList.remove('hidden');
-        resume.onclick = () => {
-          document.getElementById('selEpisode').value = last.episode;
-          if (last.translation_id) document.getElementById('selTranslation').value = last.translation_id;
-          playEpisode(last.episode, last.translation_id);
-          document.getElementById('player').addEventListener('loadedmetadata', () => {
-            document.getElementById('player').currentTime = last.seconds;
-          }, { once: true });
-        };
+        if (resume) {
+          resume.textContent = '⏵ Продолжить с ' + fmtTime(last.seconds) + ' (серия ' + last.episode + ')';
+          resume.classList.remove('hidden');
+          resume.onclick = () => {
+            playEpisode(last.episode, last.translation_id, last.seconds);
+          };
+        }
       }
     }
   } catch(e) {}
 }
 
-// ==== START ====
 updateUserUI();
 const params = new URLSearchParams(location.search);
 const id = params.get('id');
+const ep = params.get('ep');
+const tr = params.get('tr');
+const t = params.get('t');
 const hash = location.hash.replace('#', '');
+
 if (id) {
-  openTitle(id);
+  openTitle(id, { ep: ep ? Number(ep) : null, tr: tr, t: t ? Number(t) : 0 });
 } else if (hash === 'history') {
   switchTab('history');
 } else {
