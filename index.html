@@ -1,59 +1,423 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <title>Anime Player</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<meta charset="UTF-8">
+<title>Anime</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f10; color: #e5e5e5; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+
+  /* Верхняя панель */
+  #topbar { display: flex; gap: 8px; padding: 8px 16px; background: #1a1a1c; border-bottom: 1px solid #2a2a2c; align-items: center; position: sticky; top: 0; z-index: 10; }
+  #topbar input { background: #26262a; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 14px; width: 160px; }
+  #topbar button { background: #e63946; color: #fff; border: 0; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+  #topbar button.ghost { background: #333; }
+  #topbar button:hover { filter: brightness(1.15); }
+  #userInfo { color: #9a9a9a; font-size: 14px; margin-left: auto; }
+
+  /* Контейнер */
+  #app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* Страница тайтла */
+  .title-layout { display: grid; grid-template-columns: 260px 1fr; gap: 32px; margin-bottom: 32px; }
+  .title-poster { width: 100%; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+  .title-name { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .title-orig { color: #7a7a7a; font-size: 14px; margin-bottom: 16px; }
+  .title-meta { color: #9a9a9a; font-size: 14px; margin-bottom: 6px; }
+  .title-genres { color: #c4a4ff; font-size: 13px; margin: 12px 0; }
+  .title-desc { color: #b8b8b8; line-height: 1.6; font-size: 15px; margin-top: 16px; }
+
+  /* Блок управления */
+  .controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0; align-items: center; }
+  .controls select { background: #26262a; border: 1px solid #333; color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 14px; min-width: 180px; }
+  .controls button { background: #e63946; color: #fff; border: 0; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; }
+  .controls button:hover { filter: brightness(1.15); }
+  .resume-btn { background: #2a7fff !important; }
+
+  /* Плеер */
+  #playerWrap { position: relative; width: 100%; margin-bottom: 24px; }
+  #player { width: 100%; max-height: 70vh; background: #000; border-radius: 8px; display: block; }
+
+  /* Список серий */
+  .episodes { margin-top: 24px; }
+  .episodes h3 { font-size: 18px; margin-bottom: 16px; color: #fff; }
+  .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+  .ep-btn { background: #26262a; color: #e5e5e5; border: 1px solid #333; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; text-align: center; position: relative; }
+  .ep-btn:hover { background: #333; }
+  .ep-btn.watched { background: #1a3a1a; border-color: #2a5a2a; color: #7ad07a; }
+  .ep-btn.current { background: #e63946; border-color: #e63946; color: #fff; }
+
+  /* Статусы */
+  .status { padding: 12px; background: #26262a; border-radius: 6px; margin: 16px 0; color: #9a9a9a; font-size: 14px; }
+  .error { background: #3a1a1a; color: #ff9999; border-left: 3px solid #e63946; }
+  .hidden { display: none !important; }
+
+  /* Модалка логина */
+  #loginModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  #loginBox { background: #1a1a1c; padding: 32px; border-radius: 12px; width: 340px; }
+  #loginBox h2 { margin-bottom: 20px; font-size: 20px; }
+  #loginBox input { width: 100%; background: #26262a; border: 1px solid #333; color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
+  #loginBox button { width: 100%; background: #e63946; color: #fff; border: 0; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  #loginBox button.ghost { background: #333; }
+  #loginBox .err { color: #ff9999; font-size: 13px; margin-top: 8px; min-height: 16px; }
+</style>
 </head>
 <body>
-  <div>
-    <input id="shikimoriId" placeholder="Shikimori ID">
-    <input id="translationId" placeholder="Translation ID">
-    <input id="episode" placeholder="Episode">
-    <button onclick="loadVideo()">Смотреть</button>
+
+<div id="topbar">
+  <input id="inpShikimoriId" placeholder="Shikimori ID">
+  <button onclick="openTitle()">Открыть</button>
+  <span id="userInfo"></span>
+  <button id="btnLogout" class="ghost hidden" onclick="logout()">Выйти</button>
+</div>
+
+<div id="app">
+  <div id="content"></div>
+</div>
+
+<!-- Модалка логина -->
+<div id="loginModal" class="hidden">
+  <div id="loginBox">
+    <h2>Вход / Регистрация</h2>
+    <input id="inpUsername" placeholder="Логин (от 3 символов)">
+    <input id="inpPassword" type="password" placeholder="Пароль (от 6 символов)">
+    <button onclick="doLogin()">Войти</button>
+    <button class="ghost" onclick="doRegister()">Зарегистрироваться</button>
+    <div id="loginError" class="err"></div>
   </div>
-  <video id="player" controls style="width:100%; max-width:1280px;"></video>
+</div>
 
-  <script>
-    let hls = null;
+<script>
+const API = 'https://anime-app-v2.onrender.com';
+const KODIK = 'https://kodik-microservice-hma0.onrender.com';
 
-    async function loadVideo() {
-      const shikimoriId = document.getElementById('shikimoriId').value;
-      const translationId = document.getElementById('translationId').value;
-      const episode = document.getElementById('episode').value;
+let token = localStorage.getItem('token');
+let username = localStorage.getItem('username');
 
-      const url = 'https://anime-app-v2.onrender.com/api/episode/kodik'
-        + '?shikimoriId=' + encodeURIComponent(shikimoriId)
-        + '&translationId=' + encodeURIComponent(translationId)
-        + '&episode=' + encodeURIComponent(episode);
+let currentTitle = null;
+let currentEpisode = null;
+let currentTranslationId = null;
+let currentHls = null;
+let progressTimer = null;
+let currentSeconds = 0;
 
-      console.log('Запрос:', url);
+// ==== УТИЛИТЫ ====
+function fmtTime(sec) {
+  if (!sec || sec < 0) return '00:00';
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
 
-      const response = await fetch(url);
-      console.log('Статус:', response.status);
+function authHeaders() {
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
 
-      if (!response.ok) {
-        const text = await response.text();
-        console.error('Ошибка сервера:', text);
-        alert('Ошибка ' + response.status + ': ' + text);
-        return;
+// ==== АВТОРИЗАЦИЯ ====
+function updateUserUI() {
+  const info = document.getElementById('userInfo');
+  const logout = document.getElementById('btnLogout');
+  const modal = document.getElementById('loginModal');
+  if (token && username) {
+    info.textContent = '👤 ' + username;
+    logout.classList.remove('hidden');
+    modal.classList.add('hidden');
+  } else {
+    info.textContent = 'Не авторизован';
+    logout.classList.add('hidden');
+    modal.classList.remove('hidden');
+  }
+}
+
+async function doLogin() {
+  const u = document.getElementById('inpUsername').value.trim();
+  const p = document.getElementById('inpPassword').value;
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  try {
+    const r = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: u, password: p})
+    });
+    const data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Ошибка'; return; }
+    token = data.token;
+    username = data.username;
+    localStorage.setItem('token', token);
+    localStorage.setItem('username', username);
+    updateUserUI();
+    reloadProgress();
+  } catch (e) { err.textContent = 'Сеть недоступна'; }
+}
+
+async function doRegister() {
+  const u = document.getElementById('inpUsername').value.trim();
+  const p = document.getElementById('inpPassword').value;
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  try {
+    const r = await fetch(API + '/api/auth/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: u, password: p})
+    });
+    const data = await r.json();
+    if (!r.ok) { err.textContent = data.error || 'Ошибка'; return; }
+    token = data.token;
+    username = data.username;
+    localStorage.setItem('token', token);
+    localStorage.setItem('username', username);
+    updateUserUI();
+    reloadProgress();
+  } catch (e) { err.textContent = 'Сеть недоступна'; }
+}
+
+function logout() {
+  token = null; username = null;
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  updateUserUI();
+}
+
+// ==== ГЛАВНАЯ ====
+function openTitle() {
+  const id = document.getElementById('inpShikimoriId').value.trim();
+  if (!id) return;
+  history.pushState({}, '', '?id=' + id);
+  loadTitle(id);
+}
+
+async function loadTitle(id) {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="status">Загрузка тайтла...</div>';
+  try {
+    const r = await fetch(API + '/api/title/' + id);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    currentTitle = await r.json();
+    renderTitle();
+  } catch (e) {
+    content.innerHTML = '<div class="status error">Не удалось загрузить тайтл: ' + e.message + '</div>';
+  }
+}
+
+function renderTitle() {
+  const t = currentTitle;
+  const content = document.getElementById('content');
+  const sources = t.sources?.kodik || [];
+
+  const options = sources.map(s =>
+    `<option value="${s.translationId}">${s.translation} (${s.type})</option>`
+  ).join('');
+
+  content.innerHTML = `
+    <div class="title-layout">
+      <img class="title-poster" src="${t.posterUrl || ''}" alt="">
+      <div>
+        <div class="title-name">${t.title || ''}</div>
+        <div class="title-orig">${t.originalTitle || ''}</div>
+        <div class="title-meta">${t.kind || ''} · ${t.status || ''} · ${t.episodes || '?'} эп. · ⭐ ${t.score || '?'}</div>
+        <div class="title-genres">${(t.genres || []).join(' · ')}</div>
+        <div class="title-desc">${t.description || ''}</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <select id="selTranslation">${options}</select>
+      <select id="selEpisode"></select>
+      <button onclick="playSelected()">▶ Смотреть</button>
+      <button id="btnResume" class="resume-btn hidden"></button>
+    </div>
+
+    <div id="playerWrap" class="hidden">
+      <video id="player" controls></video>
+    </div>
+
+    <div class="episodes">
+      <h3>Серии</h3>
+      <div class="ep-grid" id="epGrid"></div>
+    </div>
+  `;
+
+  fillEpisodes();
+  document.getElementById('selTranslation').addEventListener('change', fillEpisodes);
+  reloadProgress();
+}
+
+function fillEpisodes() {
+  const t = currentTitle;
+  const total = t.episodes || 1;
+  const sel = document.getElementById('selEpisode');
+  sel.innerHTML = '';
+  for (let i = 1; i <= total; i++) {
+    sel.innerHTML += `<option value="${i}">Серия ${i}</option>`;
+  }
+  const grid = document.getElementById('epGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= total; i++) {
+    grid.innerHTML += `<button class="ep-btn" data-ep="${i}" onclick="playEpisode(${i})">${i}</button>`;
+  }
+}
+
+async function playSelected() {
+  const ep = document.getElementById('selEpisode').value;
+  const tr = document.getElementById('selTranslation').value;
+  playEpisode(Number(ep), tr);
+}
+
+async function playEpisode(ep, trId) {
+  if (!trId) trId = document.getElementById('selTranslation').value;
+  currentEpisode = ep;
+  currentTranslationId = trId;
+  currentSeconds = 0;
+
+  document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('current'));
+  const btn = document.querySelector('.ep-btn[data-ep="' + ep + '"]');
+  if (btn) btn.classList.add('current');
+
+  const wrap = document.getElementById('playerWrap');
+  wrap.classList.remove('hidden');
+  const video = document.getElementById('player');
+
+  if (currentHls) { currentHls.destroy(); currentHls = null; }
+
+  try {
+    const url = KODIK + '/get-link';
+    const r = await fetch(API + '/api/episode/kodik?shikimoriId=' + currentTitle.shikimoriId + '&translationId=' + trId + '&episode=' + ep);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const m3u8 = data.url.startsWith('//') ? 'https:' + data.url : data.url;
+
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(m3u8);
+      currentHls.attachMedia(video);
+    } else {
+      video.src = m3u8;
+    }
+
+    // Восстановление позиции
+    const saved = loadLocalProgress(currentTitle.shikimoriId, ep);
+    if (saved && saved > 5) {
+      video.addEventListener('loadedmetadata', () => {
+        video.currentTime = saved;
+      }, { once: true });
+    }
+
+    video.play().catch(() => {});
+
+    // Таймер сохранения
+    if (progressTimer) clearInterval(progressTimer);
+    progressTimer = setInterval(saveProgress, 10000);
+
+    video.addEventListener('timeupdate', () => {
+      currentSeconds = Math.floor(video.currentTime);
+      saveLocalProgress(currentTitle.shikimoriId, ep, currentSeconds);
+    });
+
+    video.addEventListener('ended', () => {
+      saveProgress();
+      if (currentEpisode < (currentTitle.episodes || 1)) {
+        playEpisode(currentEpisode + 1);
       }
+    });
 
-      const data = await response.json();
-      console.log('Ответ:', data);
+  } catch (e) {
+    alert('Не удалось открыть серию: ' + e.message);
+  }
+}
 
-      const video = document.getElementById('player');
-      const videoUrl = data.url.startsWith('//') ? 'https:' + data.url : data.url;
+// ==== СОХРАНЕНИЕ ====
+function localKey(id, ep) { return 'progress:' + id + ':' + ep; }
 
-      if (hls) hls.destroy();
+function saveLocalProgress(id, ep, sec) {
+  try { localStorage.setItem(localKey(id, ep), String(sec)); } catch(e) {}
+}
 
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(videoUrl);
-        hls.attachMedia(video);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = videoUrl;
+function loadLocalProgress(id, ep) {
+  const v = localStorage.getItem(localKey(id, ep));
+  return v ? Number(v) : 0;
+}
+
+async function saveProgress() {
+  if (!token || !currentTitle || !currentEpisode) return;
+  try {
+    await fetch(API + '/api/progress', {
+      method: 'PATCH',
+      headers: Object.assign({'Content-Type': 'application/json'}, authHeaders()),
+      body: JSON.stringify({
+        shikimoriId: currentTitle.shikimoriId,
+        episode: currentEpisode,
+        seconds: currentSeconds,
+        title: currentTitle.title,
+        originalTitle: currentTitle.originalTitle,
+        posterUrl: currentTitle.posterUrl,
+        translationId: Number(currentTranslationId),
+        translationSource: 'kodik'
+      })
+    });
+  } catch(e) {}
+}
+
+// sendBeacon при закрытии
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    saveProgress();
+  }
+});
+window.addEventListener('beforeunload', () => { saveProgress(); });
+
+// ==== ПРОГРЕСС И ГАЛОЧКИ ====
+async function reloadProgress() {
+  if (!token || !currentTitle) return;
+  try {
+    const r = await fetch(API + '/api/progress/' + currentTitle.shikimoriId + '/all', {
+      headers: authHeaders()
+    });
+    if (!r.ok) return;
+    const rows = await r.json();
+    rows.forEach(row => {
+      const btn = document.querySelector('.ep-btn[data-ep="' + row.episode + '"]');
+      if (btn) btn.classList.add('watched');
+    });
+
+    const rr = await fetch(API + '/api/progress/' + currentTitle.shikimoriId, {
+      headers: authHeaders()
+    });
+    if (rr.ok) {
+      const last = await rr.json();
+      if (last && last.episode) {
+        const resume = document.getElementById('btnResume');
+        resume.textContent = '⏵ Продолжить с ' + fmtTime(last.seconds) + ' (серия ' + last.episode + ')';
+        resume.classList.remove('hidden');
+        resume.onclick = () => {
+          document.getElementById('selEpisode').value = last.episode;
+          if (last.translation_id) {
+            document.getElementById('selTranslation').value = last.translation_id;
+          }
+          playEpisode(last.episode, last.translation_id);
+          document.getElementById('player').addEventListener('loadedmetadata', () => {
+            document.getElementById('player').currentTime = last.seconds;
+          }, { once: true });
+        };
       }
     }
-  </script>
+  } catch(e) {}
+}
+
+// ==== СТАРТ ====
+updateUserUI();
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+if (id) {
+  document.getElementById('inpShikimoriId').value = id;
+  loadTitle(id);
+} else {
+  document.getElementById('content').innerHTML = '<div class="status">Введи Shikimori ID сверху и нажми «Открыть»</div>';
+}
+</script>
 </body>
 </html>
